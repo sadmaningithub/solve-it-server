@@ -30,6 +30,11 @@ async function run() {
 
     const assignmentCollection = client.db('solveItDB').collection('assignments');
 
+    app.get('/assignments', async(req, res)=>{
+      const result = await assignmentCollection.find().toArray();
+      res.send(result)
+    })
+
     app.post('/assignments', async(req,res)=>{
        console.log(req.body);
        const doc = req.body;
