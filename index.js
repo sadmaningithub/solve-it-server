@@ -10,7 +10,7 @@ app.use(express.json());
 
 // console.log(process.env.DB_USER);
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { configDotenv } = require('dotenv');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.x69co.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -32,6 +32,13 @@ async function run() {
 
     app.get('/assignments', async(req, res)=>{
       const result = await assignmentCollection.find().toArray();
+      res.send(result)
+    })
+
+    app.get('/assignments/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)};
+      const result = await assignmentCollection.findOne(query);
       res.send(result)
     })
 
