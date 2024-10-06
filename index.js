@@ -54,6 +54,11 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/submitted', async(req, res)=>{
+      const result = await submittedCollection.find().toArray();
+      res.send(result)
+    })
+
     app.post('/submitted', async(req, res)=>{
       const doc = req.body;
       const result = await submittedCollection.insertOne(doc);
