@@ -29,6 +29,7 @@ async function run() {
     await client.connect();
 
     const assignmentCollection = client.db('solveItDB').collection('assignments');
+    const submittedCollection = client.db('solveItDB').collection('submit');
 
     app.get('/assignments', async(req, res)=>{
       const result = await assignmentCollection.find().toArray();
@@ -42,8 +43,25 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/assignments/submit/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const options = {
+        // Include only the `title` and `imdb` fields in the returned document
+        projection: { _id: 1, title: 1},
+      };
+      const result = await assignmentCollection.findOne(query,options);
+      res.send(result);
+    })
+
+    app.post('/submitted', async(req, res)=>{
+      const doc = req.body;
+      const result = await submittedCollection.insertOne(doc);
+      res.send(result)
+    })
+
     app.post('/assignments', async(req,res)=>{
-       console.log(req.body);
+      //  console.log(req.body);
        const doc = req.body;
        const result = await assignmentCollection.insertOne(doc);
        res.send(result)
@@ -54,7 +72,7 @@ async function run() {
       const filter = {_id: new ObjectId(id)}
       const options = { upsert: true };
       const updatedDoc = req.body;
-      console.log(updatedDoc);
+      // console.log(updatedDoc);
       const updateDoc = {
         $set: {
           title: updatedDoc.title,
