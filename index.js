@@ -31,55 +31,62 @@ async function run() {
     const assignmentCollection = client.db('solveItDB').collection('assignments');
     const submittedCollection = client.db('solveItDB').collection('submit');
 
-    app.get('/assignments', async(req, res)=>{
+    app.get('/assignments', async (req, res) => {
       const result = await assignmentCollection.find().toArray();
       res.send(result)
     })
 
-    app.get('/assignments/:id', async(req, res)=>{
+    app.get('/assignments/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await assignmentCollection.findOne(query);
       res.send(result)
     })
 
-    app.get('/assignments/submit/:id', async(req, res)=>{
+    app.get('/assignments/submit/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const options = {
         // Include only the `title` and `imdb` fields in the returned document
-        projection: { _id: 1, title: 1},
+        projection: { _id: 1, title: 1 },
       };
-      const result = await assignmentCollection.findOne(query,options);
+      const result = await assignmentCollection.findOne(query, options);
       res.send(result);
     })
 
-    app.get('/submitted', async(req, res)=>{
-      console.log(req.query.email)
+    app.get('/submitted', async (req, res) => {
+      // console.log(req.query.email)
       let query = {};
-      if(req.query?.email){
-        query = {email: req.query.email}
+      if (req.query?.email) {
+        query = { email: req.query.email }
       }
       const result = await submittedCollection.find(query).toArray();
       res.send(result)
     })
 
-    app.post('/submitted', async(req, res)=>{
+    app.get('/submitted/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await submittedCollection.findOne(query);
+      res.send(result)
+    })
+
+    app.post('/submitted', async (req, res) => {
       const doc = req.body;
       const result = await submittedCollection.insertOne(doc);
       res.send(result)
     })
 
-    app.post('/assignments', async(req,res)=>{
+    app.post('/assignments', async (req, res) => {
       //  console.log(req.body);
-       const doc = req.body;
-       const result = await assignmentCollection.insertOne(doc);
-       res.send(result)
+      const doc = req.body;
+      const result = await assignmentCollection.insertOne(doc);
+      res.send(result)
     })
 
-    app.put('/assignments/update/:id', async(req, res)=>{
+    app.put('/assignments/update/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) }
       const options = { upsert: true };
       const updatedDoc = req.body;
       // console.log(updatedDoc);
@@ -99,9 +106,26 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/assignments/:id', async(req, res)=>{
+    app.put('/submitted/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      // console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = req.body;
+      const updateDoc = {
+        $set: {
+          
+          marks: updatedDoc.marks,
+          examinerNote: updatedDoc.examinerNote,
+        }
+      };
+      const result = await submittedCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    })
+
+    app.delete('/assignments/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const result = await assignmentCollection.deleteOne(query);
       res.send(result)
     })
@@ -116,10 +140,10 @@ async function run() {
 run().catch(console.dir);
 
 
-app.get('/', (req,res)=>{
-    res.send('SolveIt server is running.')
-} )
+app.get('/', (req, res) => {
+  res.send('SolveIt server is running.')
+})
 
-app.listen(port, ()=>{
-    console.log(`SolveIt server is currently listening to port ${port}`)
+app.listen(port, () => {
+  console.log(`SolveIt server is currently listening to port ${port}`)
 })
