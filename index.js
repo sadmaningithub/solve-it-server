@@ -26,12 +26,14 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const assignmentCollection = client.db('solveItDB').collection('assignments');
     const submittedCollection = client.db('solveItDB').collection('submit');
 
     app.get('/assignments', async (req, res) => {
+      // const level = req.query;
+      // console.log(level);
       const result = await assignmentCollection.find().toArray();
       res.send(result)
     })
@@ -60,6 +62,7 @@ async function run() {
       if (req.query?.email) {
         query = { email: req.query.email }
       }
+
       const result = await submittedCollection.find(query).toArray();
       res.send(result)
     })
@@ -71,6 +74,8 @@ async function run() {
       res.send(result)
     })
 
+    
+
     app.post('/submitted', async (req, res) => {
       const doc = req.body;
       const result = await submittedCollection.insertOne(doc);
@@ -79,6 +84,7 @@ async function run() {
 
     app.post('/assignments', async (req, res) => {
       //  console.log(req.body);
+      
       const doc = req.body;
       const result = await assignmentCollection.insertOne(doc);
       res.send(result)
